@@ -15,7 +15,7 @@
 
 const FILMS = [
   // ---------- Шинээр нэмэгдсэн ----------
-    { id: 1, title: "хэрүүл", img: "baju-tumee.jpg", hero: "baju-tumee.jpg",
+    { id: 1, title: "baju tumee", img: "baju-tumee.jpg", hero: "baju-tumee.jpg",
     year: 2026, rating: 8.9, quality: "4K", age: "16+", duration: 128, type: "movie",
     genres: ["Түүхэн", "Тулаант"], rows: ["new"], featured: true,
         video: "https://player.mediadelivery.net/embed/793457/46d5c4cb-4b76-4fb1-af6c-f988a2d8f808?autoplay=true&muted=false&preload=true",
