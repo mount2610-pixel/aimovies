@@ -210,36 +210,23 @@ function openDetail(id) {
 // data.js дотор кинонд video: "https://..." холбоос нэмэхэд энд тоглоно.
 function openPlayer(id) {
   const f = byId(id);
+  // Нэвтрээгүй хэрэглэгчийг эхлээд нэвтрүүлнэ
+  if (window.AUTH_ENABLED && !window.currentUser) {
+    $("detail").hidden = true;
+    openLogin("login", "Кино үзэхийн тулд нэвтэрнэ үү.", id);
+    return;
+  }
   $("detail").hidden = true;
   $("player").innerHTML = `
     <button class="close" data-close="player" aria-label="Хаах">×</button>
     ${f.video
-      ? `<iframe src="${f.video}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`
+      ? `<iframe src="${f.video}" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`
       : `<div class="player-empty"><h3>${f.title}</h3><p>Энэ киноны видео удахгүй нэмэгдэнэ.</p></div>`}`;
   $("player").hidden = false;
 }
 
-// ---------- Нэвтрэх цонх ----------
-function openLogin() {
-  $("login").innerHTML = `
-    <form class="modal login" id="loginForm">
-      <button type="button" class="close" data-close="login" aria-label="Хаах">×</button>
-      <h2>Нэвтрэх</h2>
-      <p>AIMOVIES-д тавтай морил</p>
-      <label class="field">Имэйл<input id="loginEmail" type="email" required placeholder="name@gmail.com"></label>
-      <label class="field">Нууц үг<input id="loginPass" type="password" required placeholder="••••••••"></label>
-      <button class="btn-red" type="submit">Нэвтрэх</button>
-      <div class="form-msg" id="loginMsg" hidden></div>
-    </form>`;
-  $("login").hidden = false;
-  $("loginForm").onsubmit = (e) => {
-    e.preventDefault();
-    $("loginMsg").textContent = "Нэвтрэх систем удахгүй нээгдэнэ.";
-    $("loginMsg").hidden = false;
-  };
-}
-$("loginBtn").onclick = openLogin;
-$("avatarBtn").onclick = openLogin;
+// ---------- Нэвтрэх ----------
+// Нэвтрэх, бүртгүүлэх бүх код js/auth.js файлд байгаа.
 
 // ---------- Миний жагсаалт товч ----------
 function toggleList(id) {
