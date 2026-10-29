@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AIMOVIES — Монгол кино, сериал</title>
+  <meta name="description" content="AIMOVIES — Монгол кино, AI бүтээл, сериалыг 4K чанараар үзээрэй.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@800;900&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============ ТОЛГОЙ ХЭСЭГ ============ -->
+  <header class="topbar" id="topbar">
+    <a href="#" class="logo" aria-label="AIMOVIES нүүр">
+      <span class="logo-ai">AI</span>MOVIES<svg class="logo-play" viewBox="0 0 20 22" aria-hidden="true"><path d="M2 1.5 19 11 2 20.5Z"/></svg>
+    </a>
+
+    <nav class="menu" aria-label="Үндсэн цэс">
+      <a href="#" data-route="home">Нүүр</a>
+      <a href="#movies" data-route="movies">Кино</a>
+      <a href="#series" data-route="series">Сериал</a>
+      <div class="dropdown">
+        <button class="dropdown-btn" id="genreBtn" aria-expanded="false" aria-haspopup="true">
+          Төрөл <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="dropdown-menu" id="genreMenu" hidden></div>
+      </div>
+      <a href="#mylist" data-route="mylist">Миний жагсаалт</a>
+    </nav>
+
+    <div class="top-right">
+      <label class="search" for="searchInput">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="searchInput" type="search" placeholder="Кино хайх..." autocomplete="off">
+      </label>
+      <button class="icon-btn search-toggle" id="searchToggle" aria-label="Хайх">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </button>
+      <button class="icon-btn" id="bellBtn" aria-label="Мэдэгдэл">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span class="dot"></span>
+      </button>
+      <div class="notif" id="notifBox" hidden></div>
+      <button class="btn-red" id="loginBtn">Нэвтрэх</button>
+      <button class="avatar" id="avatarBtn" aria-label="Профайл">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.5"/><path d="M3 21a9 9 0 0 1 18 0Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="app"></main>
+
+  <footer class="footer">
+    <div class="logo small"><span class="logo-ai">AI</span>MOVIES</div>
+    <p>© 2026 AIMOVIES. Бүх эрх хуулиар хамгаалагдсан.</p>
+  </footer>
+
+  <!-- Киноны дэлгэрэнгүй цонх -->
+  <div class="overlay" id="detail" hidden></div>
+  <!-- Тоглуулагч -->
+  <div class="player" id="player" hidden></div>
+  <!-- Нэвтрэх цонх -->
+  <div class="overlay" id="login" hidden></div>
+  <!-- Жижиг мэдэгдэл -->
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
