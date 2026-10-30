@@ -25,32 +25,52 @@ const inList = (id) => myList.includes(id);
 // ---------- Туслах функцууд ----------
 const byId = (id) => FILMS.find((f) => f.id === id);
 const img = (file) => "images/" + file;
+// CSS хувьсагч доторх зургийн хаягийг бүтэн болгоно (эс тэгвээс css/ хавтаснаас хайдаг)
+const abs = (file) => new URL(img(file), location.href).href;
 const allGenres = [...new Set(FILMS.flatMap((f) => f.genres))];
+const posterOf = (f) => f.poster || f.img || f.wide;
+const wideOf = (f) => f.wide || f.img || f.poster;
+const heroOf = (f) => f.hero || f.wide || f.img || f.poster;
 function lengthText(f) {
   if (f.type === "series") return `${f.seasons} улирал`;
-  return `${Math.floor(f.duration / 60)}ц ${f.duration % 60}м`;
+  const h = Math.floor(f.duration / 60), m = f.duration % 60;
+  return h ? `${h}ц ${m}м` : `${m} мин`;
 }
 
 const ICON = {
-  play: '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3.5 21 12 6 20.5Z"/></svg>',
-  plus: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>',
-  check: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5 9-10"/></svg>',
-  info: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.5"/></svg>',
-  left: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 5-7 7 7 7"/></svg>',
-  right: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 5 7 7-7 7"/></svg>',
-  arrow: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
+  play: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3.5 21 12 6 20.5Z"/></svg>',
+  plus: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>',
+  check: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5 9-10"/></svg>',
+  info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.5"/></svg>',
+  left: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>',
+  right: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  arrow: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
 };
+const listBtnText = (id) => (inList(id) ? ICON.check + " Жагсаалтад байгаа" : ICON.plus + " Миний жагсаалт");
 
-// ---------- Карт ----------
-function cardHTML(f) {
+// ---------- Картууд ----------
+// Босоо карт: зураг + зайтай нэр + доор нь он, хугацаа
+function posterCard(f) {
   return `
     <button class="card" data-open="${f.id}">
       <div class="thumb">
-        <img src="${img(f.img)}" alt="${f.title}" loading="lazy">
+        <img src="${img(posterOf(f))}" alt="" loading="lazy">
+        <span class="shade"></span>
         <span class="badge">${f.quality}</span>
+        <span class="pt">${f.title}</span>
       </div>
       <div class="card-title">${f.title}</div>
-      <div class="card-meta"><span>${f.year}</span><span><span class="star">★</span> ${f.rating.toFixed(1)}</span></div>
+      <div class="card-meta">${f.year} · ${lengthText(f)}</div>
+    </button>`;
+}
+// Өргөн карт: зураг + доод буланд жижиг шошго
+function wideCard(f, label) {
+  return `
+    <button class="card" data-open="${f.id}" aria-label="${f.title}">
+      <div class="thumb">
+        <img src="${img(wideOf(f))}" alt="" loading="lazy">
+        <span class="wide-label">${label || f.genres[0]}</span>
+      </div>
     </button>`;
 }
 
@@ -60,58 +80,101 @@ let slideIndex = 0, slideTimer;
 function renderHome() {
   const slides = FILMS.filter((f) => f.featured);
   const slidesHTML = slides.map((f, i) => `
-    <div class="slide ${i === 0 ? "on" : ""}">
-      <div class="slide-bg" style="background-image:url('${img(f.hero || f.img)}')"></div>
+    <div class="slide ${i === slideIndex ? "on" : ""}">
+      <div class="slide-bg" style="--hero:url('${abs(heroOf(f))}'); --mob:url('${abs(posterOf(f))}')"></div>
       <div class="slide-info">
-        <h1 class="slide-title">${f.title}</h1>
-        <div class="tags">
-          <span>${f.year}</span><span class="tag">${f.quality}</span><span class="tag">${f.age}</span><span>Монгол хадмал</span>
+        <div class="eyebrow">${f.eyebrow || (f.rows.includes("ai") ? "AI бүтээл" : "Онцлох")}</div>
+        <h1 class="slide-title${f.title.length > 12 ? " long" : ""}">${f.title}</h1>
+        <div class="meta">
+          <span>${f.year}</span><span>${f.genres[0]}</span><span>${lengthText(f)}</span><span>${f.quality}</span>
+          <span><span class="star">★</span> ${f.rating.toFixed(1)}</span>
         </div>
         <p>${f.desc}</p>
         <div class="hero-actions">
-          <button class="btn-play" data-play="${f.id}">${ICON.play} Үзэх</button>
-          <button class="btn-dark" data-list="${f.id}">${inList(f.id) ? ICON.check + " Жагсаалтад байгаа" : ICON.plus + " Миний жагсаалт"}</button>
-          <button class="btn-text" data-open="${f.id}">${ICON.info} Дэлгэрэнгүй</button>
+          <button class="btn-primary" data-play="${f.id}">${ICON.play} Үзэх</button>
+          <button class="btn-outline" data-list="${f.id}">${listBtnText(f.id)}</button>
+          <button class="icon-round" data-open="${f.id}" aria-label="Дэлгэрэнгүй">${ICON.info}</button>
         </div>
       </div>
     </div>`).join("");
 
   const rowsHTML = ROWS.map((r) => {
-    const list = FILMS.filter((f) => f.rows.includes(r.key)).slice(0, 6);
+    const list = FILMS.filter((f) => f.rows.includes(r.key));
     if (!list.length) return "";
+    const layout = r.layout || "poster";
+    const cards = list.map((f) => (layout === "wide" ? wideCard(f, r.label) : posterCard(f))).join("");
     return `
       <section>
         <div class="row-head">
           <h2>${r.title}</h2>
           <a class="see-all" href="#row-${r.key}">Бүгдийг харах ${ICON.arrow}</a>
         </div>
-        <div class="cards">${list.map(cardHTML).join("")}</div>
+        <div class="row-wrap">
+          <div class="track ${layout}">${cards}</div>
+          <button class="row-arrow prev" aria-label="Өмнөх" aria-disabled="true"><span class="round-arrow">${ICON.left}</span></button>
+          <button class="row-arrow next" aria-label="Дараах"><span class="round-arrow">${ICON.right}</span></button>
+        </div>
       </section>`;
   }).join("");
 
   app.innerHTML = `
     <section class="hero" aria-label="Онцлох кино">
       ${slidesHTML}
-      <button class="arrow prev" id="prevSlide" aria-label="Өмнөх">${ICON.left}</button>
-      <button class="arrow next" id="nextSlide" aria-label="Дараах">${ICON.right}</button>
-      <div class="dots">${slides.map((_, i) => `<button class="${i === slideIndex ? "on" : ""}" data-dot="${i}" aria-label="${i + 1}-р слайд"></button>`).join("")}</div>
+      <div class="slide-nums">${slides.map((_, i) => `<button class="${i === slideIndex ? "on" : ""}" data-dot="${i}" aria-label="${i + 1}-р слайд">${String(i + 1).padStart(2, "0")}</button>`).join("")}</div>
+      <div class="hero-arrows">
+        <button class="round-arrow" id="prevSlide" aria-label="Өмнөх">${ICON.left}</button>
+        <button class="round-arrow" id="nextSlide" aria-label="Дараах">${ICON.right}</button>
+      </div>
     </section>
     <div class="rows">${rowsHTML}</div>`;
 
   showSlide(slideIndex);
   $("prevSlide").onclick = () => showSlide(slideIndex - 1);
   $("nextSlide").onclick = () => showSlide(slideIndex + 1);
+  setupRows();
+  setupSwipe(document.querySelector(".hero"));
 }
 
 function showSlide(n) {
   const slides = document.querySelectorAll(".slide");
-  const dots = document.querySelectorAll(".dots button");
+  const nums = document.querySelectorAll(".slide-nums button");
   if (!slides.length) return;
   slideIndex = (n + slides.length) % slides.length;
   slides.forEach((s, i) => s.classList.toggle("on", i === slideIndex));
-  dots.forEach((d, i) => d.classList.toggle("on", i === slideIndex));
+  nums.forEach((d, i) => d.classList.toggle("on", i === slideIndex));
   clearInterval(slideTimer);
-  slideTimer = setInterval(() => showSlide(slideIndex + 1), 7000); // 7 секунд тутамд солигдоно
+  slideTimer = setInterval(() => showSlide(slideIndex + 1), 8000); // 8 секунд тутамд солигдоно
+}
+
+// Эгнээг сумаар гүйлгэх
+function setupRows() {
+  document.querySelectorAll(".row-wrap").forEach((wrap) => {
+    const track = wrap.querySelector(".track");
+    const prev = wrap.querySelector(".prev"), next = wrap.querySelector(".next");
+    const thumb = track.querySelector(".thumb");
+    if (thumb) wrap.style.setProperty("--h", thumb.offsetHeight + "px");
+    const update = () => {
+      prev.setAttribute("aria-disabled", String(track.scrollLeft < 8));
+      next.setAttribute("aria-disabled", String(track.scrollLeft + track.clientWidth >= track.scrollWidth - 8));
+    };
+    prev.onclick = () => track.scrollBy({ left: -track.clientWidth * 0.8 });
+    next.onclick = () => track.scrollBy({ left: track.clientWidth * 0.8 });
+    track.addEventListener("scroll", update, { passive: true });
+    update();
+  });
+}
+window.addEventListener("resize", () => { if (document.querySelector(".row-wrap")) setupRows(); });
+
+// Утсан дээр хуруугаар шударч слайд солих
+function setupSwipe(el) {
+  let x0 = null;
+  el.addEventListener("touchstart", (e) => (x0 = e.touches[0].clientX), { passive: true });
+  el.addEventListener("touchend", (e) => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 50) showSlide(slideIndex + (dx < 0 ? 1 : -1));
+    x0 = null;
+  });
 }
 
 // ---------- Жагсаалт хуудас (Кино, Сериал, Төрөл...) ----------
@@ -120,7 +183,7 @@ function renderGrid(title, subtitle, list, emptyText) {
   app.innerHTML = `
     <div class="page-head"><h1>${title}</h1><p>${subtitle || list.length + " бүтээл"}</p></div>
     <div class="grid-page">
-      ${list.length ? `<div class="cards">${list.map(cardHTML).join("")}</div>` : `<div class="empty">${emptyText || "Одоогоор бүтээл алга."}</div>`}
+      ${list.length ? `<div class="grid">${list.map(posterCard).join("")}</div>` : `<div class="empty">${emptyText || "Одоогоор бүтээл алга."}</div>`}
     </div>`;
 }
 
@@ -174,8 +237,8 @@ $("genreBtn").onclick = (e) => {
 
 // ---------- Мэдэгдэл ----------
 $("notifBox").innerHTML = "<h4>Шинэ бүтээлүүд</h4>" +
-  FILMS.filter((f) => f.rows.includes("new")).slice(0, 3).map((f) =>
-    `<button data-open="${f.id}"><img src="${img(f.img)}" alt=""><span>${f.title}<small>${f.year} · ${f.genres[0]}</small></span></button>`).join("");
+  FILMS.slice(0, 3).map((f) =>
+    `<button data-open="${f.id}"><img src="${img(wideOf(f))}" alt=""><span>${f.title}<small>${f.year} · ${f.genres[0]}</small></span></button>`).join("");
 $("bellBtn").onclick = (e) => {
   e.stopPropagation();
   $("notifBox").hidden = !$("notifBox").hidden;
@@ -188,18 +251,18 @@ function openDetail(id) {
   $("detail").innerHTML = `
     <div class="modal" role="dialog" aria-modal="true" aria-label="${f.title}">
       <button class="close" data-close="detail" aria-label="Хаах">×</button>
-      <div class="modal-img"><img src="${img(f.hero || f.img)}" alt="${f.title}"></div>
+      <div class="modal-img"><img src="${img(wideOf(f))}" alt=""></div>
       <div class="modal-body">
         <h2>${f.title}</h2>
-        <div class="tags">
-          <span><span class="star">★</span> ${f.rating.toFixed(1)}</span><span>${f.year}</span>
-          <span class="tag">${f.quality}</span><span class="tag">${f.age}</span><span>${lengthText(f)}</span>
+        <div class="meta">
+          <span>${f.year}</span><span>${f.genres[0]}</span><span>${lengthText(f)}</span><span>${f.quality}</span><span>${f.age}</span>
+          <span><span class="star">★</span> ${f.rating.toFixed(1)}</span>
         </div>
-        <p>${f.desc}</p>
-        <div class="genres">${f.genres.map((g) => `<span>${g}</span>`).join("")}<span>Монгол хадмал</span></div>
+        ${f.desc ? `<p>${f.desc}</p>` : ""}
+        <div class="genres">${f.genres.map((g) => `<span>${g}</span>`).join("")}</div>
         <div class="hero-actions">
-          <button class="btn-play" data-play="${f.id}">${ICON.play} Үзэх</button>
-          <button class="btn-dark" data-list="${f.id}">${inList(f.id) ? ICON.check + " Жагсаалтад байгаа" : ICON.plus + " Миний жагсаалт"}</button>
+          <button class="btn-primary" data-play="${f.id}">${ICON.play} Үзэх</button>
+          <button class="btn-outline" data-list="${f.id}">${listBtnText(f.id)}</button>
         </div>
       </div>
     </div>`;
@@ -234,7 +297,7 @@ function toggleList(id) {
   else { myList.push(id); toast("Миний жагсаалтад нэмлээ"); }
   saveList();
   document.querySelectorAll(`[data-list="${id}"]`).forEach((b) => {
-    b.innerHTML = inList(id) ? ICON.check + " Жагсаалтад байгаа" : ICON.plus + " Миний жагсаалт";
+    b.innerHTML = listBtnText(id);
   });
   if (location.hash === "#mylist") route();
 }

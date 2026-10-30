@@ -74,7 +74,7 @@ function openLogin(mode = "login", note = "", playId = null) {
       <label class="field">Имэйл<input id="authEmail" type="email" required autocomplete="email" placeholder="name@gmail.com"></label>
       <label class="field">Нууц үг<input id="authPass" type="password" required autocomplete="current-password" placeholder="••••••••"></label>
       <button type="button" class="link-btn right" data-auth="reset">Нууц үгээ мартсан уу?</button>
-      <button class="btn-red" type="submit">Нэвтрэх</button>
+      <button class="btn-primary" type="submit">Нэвтрэх</button>
       <p class="switch">Бүртгэлгүй юу? <button type="button" class="link-btn" data-auth="register">Бүртгүүлэх</button></p>`;
   } else if (mode === "register") {
     body = `
@@ -85,14 +85,14 @@ function openLogin(mode = "login", note = "", playId = null) {
       <label class="field">Имэйл<input id="authEmail" type="email" required autocomplete="email" placeholder="name@gmail.com"></label>
       <label class="field">Нууц үг<input id="authPass" type="password" required minlength="6" autocomplete="new-password" placeholder="Хамгийн багадаа 6 тэмдэгт"></label>
       <label class="field">Нууц үг давтах<input id="authPass2" type="password" required minlength="6" autocomplete="new-password" placeholder="••••••••"></label>
-      <button class="btn-red" type="submit">Бүртгүүлэх</button>
+      <button class="btn-primary" type="submit">Бүртгүүлэх</button>
       <p class="switch">Бүртгэлтэй юу? <button type="button" class="link-btn" data-auth="login">Нэвтрэх</button></p>`;
   } else {
     body = `
       <h2>Нууц үг сэргээх</h2>
       <p>Бүртгэлтэй имэйлээ бичвэл нууц үг солих холбоос илгээнэ.</p>
       <label class="field">Имэйл<input id="authEmail" type="email" required autocomplete="email" placeholder="name@gmail.com"></label>
-      <button class="btn-red" type="submit">Холбоос илгээх</button>
+      <button class="btn-primary" type="submit">Холбоос илгээх</button>
       <p class="switch"><button type="button" class="link-btn" data-auth="login">← Нэвтрэх рүү буцах</button></p>`;
   }
 
@@ -159,15 +159,16 @@ function initials(user) {
 function updateHeader(user) {
   const avatar = $("avatarBtn");
   $("loginBtn").hidden = !!user;
+  const chev = '<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>';
   if (user) {
     avatar.classList.add("signed");
-    avatar.innerHTML = user.photoURL
+    avatar.innerHTML = `<span class="av">${user.photoURL
       ? `<img src="${user.photoURL}" alt="" referrerpolicy="no-referrer">`
-      : `<span>${initials(user)}</span>`;
+      : initials(user)}</span>${chev}`;
     avatar.setAttribute("aria-label", "Профайл: " + (user.displayName || user.email));
   } else {
     avatar.classList.remove("signed");
-    avatar.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.5"/><path d="M3 21a9 9 0 0 1 18 0Z"/></svg>';
+    avatar.innerHTML = '<span class="av"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.5"/><path d="M3 21a9 9 0 0 1 18 0Z"/></svg></span>';
     avatar.setAttribute("aria-label", "Нэвтрэх");
   }
 }
